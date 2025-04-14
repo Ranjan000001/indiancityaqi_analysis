@@ -66,7 +66,10 @@ if __name__ == '__main__':
         bins = [0, 50, 100, 169, 208, 2000]  # range
         labels = ['Good', 'Moderate', 'Poor', 'Very Poor', 'Danger']
         data[f'{col}_range'] = pd.cut(x=data[f'{col}'], bins=bins, labels=labels)  # new column range of col
-
+    # date
+    data['date'] = pd.to_datetime(data['Timestamp'], format='%d-%m-%Y')  # new data column
+    # months
+    data['month'] = data['date'].dt.strftime('%b')   # this striftime creat month in text of jan
 
     data = data.reset_index(drop=True)
     print(data.info())
@@ -109,14 +112,14 @@ if __name__ == '__main__':
     year_2024 = data.loc['01-01-2024':'31-12-2024']  # year 2024
 
     year_col = [year_2020, year_2021, year_2022, year_2023, year_2024]  # list of year column
-    list_range = ['pm2.5_range', 'PM10_range', 'no2_range', 'O3_range', 'nh3_range', 'so2_range', 'co_range']
-    for col in year_col:
-        df1 = col.groupby('Timestamp')[list_column].mean().reset_index()  # groping year_col with list_column
+    list_year = ['year 2020', 'year 2021', 'year 2022', 'year 2023', 'year 2024']
+    for col, col1 in zip(year_col, list_year):
+        df1 = col.groupby('month')[list_column].mean().reset_index()  # groping year_col with list_column
         df1_melt = col.melt(id_vars='Timestamp', value_vars=list_column, var_name='pollution', value_name='mean_value')
         # bar graph of years vs pollutions
-        sns.lineplot(data=col, x='Timestamp', y='mean_value', hue='pollution', marker='o')
-        #col['year'].plot()
-        plt.xlabel(f'{col}')  # x axis label
+        #sns.lineplot(data=col, x='Timestamp', y='mean_value', hue='pollution', marker='o')
+        df1.plot(x='month', y=list_column)
+        plt.xlabel(f'{col1}')  # x axis label
         plt.ylabel('count')  # y axis label
-        plt.title(f'Graph {col} vs Pollution')  # title
+        plt.title(f'Graph {col1} vs Pollution')  # title
         plt.show()  # show
