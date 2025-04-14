@@ -71,12 +71,11 @@ if __name__ == '__main__':
     # months
     data['month'] = data['date'].dt.strftime('%b')   # this striftime creat month in text of jan
 
-    data = data.reset_index(drop=True)
-    print(data.info())
+    data = data.reset_index(drop=True)   # remove any duplicated value
+    print(data.info())   #  check change
     print(data.describe())
+    
     # Data Visualization
-
-
 
     # list of columns
     col_list = ['pm2.5_range', 'PM10_range', 'co_range', 'no2_range', 'O3_range', 'nh3_range', 'so2_range']
@@ -115,9 +114,7 @@ if __name__ == '__main__':
     list_year = ['year 2020', 'year 2021', 'year 2022', 'year 2023', 'year 2024']
     for col, col1 in zip(year_col, list_year):
         df1 = col.groupby('month')[list_column].mean().reset_index()  # groping year_col with list_column
-        df1_melt = col.melt(id_vars='Timestamp', value_vars=list_column, var_name='pollution', value_name='mean_value')
-        # bar graph of years vs pollutions
-        #sns.lineplot(data=col, x='Timestamp', y='mean_value', hue='pollution', marker='o')
+        # graph of years vs pollutions
         df1.plot(x='month', y=list_column)
         plt.xlabel(f'{col1}')  # x axis label
         plt.ylabel('count')  # y axis label
