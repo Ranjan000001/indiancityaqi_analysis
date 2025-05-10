@@ -38,6 +38,9 @@ if __name__ == '__main__':
     # check values
     print(data.isnull().sum())
 
+    # outliers
+    # using tabel list from 35 line
+
     # check data
     print(data.info())
     print(data.tail())
@@ -67,9 +70,10 @@ if __name__ == '__main__':
     data['date'] = pd.to_datetime(data['Timestamp'], format='%d-%m-%Y')  # new data column
     # months
     data['month'] = data['date'].dt.strftime('%b')   # this striftime creat month in text of jan
-     # remove duplicated values
-    data = data.reset_index(drop=True)
 
+    data = data.reset_index(drop=True)
+    print(data.info())
+    print(data.describe())
     # Data Visualization
 
 
@@ -84,22 +88,38 @@ if __name__ == '__main__':
         plt.yscale('log')  # y axis in log
         plt.title(f'graph of {col}')  # title
         plt.show()  # show
+    arr = np.array([1, 2, 3, 4])
 
+    # locations
+    plt.figure(figsize=(12, 7))  # figure size
+    list_column = ['PM2.5', 'PM10', 'CO', 'NO2', 'O3', 'NH3', 'SO2']
+    df = data.groupby('Location')[list_column].mean().reset_index()  # location basis on another columns mean
+    # melt the data of group
+    df_melt = df.melt(id_vars='Location', value_vars=list_column, var_name='pollution', value_name='mean_value')
+    # line graph of location basis on another columns  mean
+    sns.lineplot(data=df_melt, x='Location', y='mean_value', hue='pollution', marker='o')
+    plt.title('Graph of location vs PM2.5, PM10, NO2, NH3, SO2, CO, O3')  # title
+    plt.xlabel('Location')  # x axis label
+    plt.ylabel('Pollutions Elements')  # y axis label
+    plt.xticks(rotation=90)  # rotation x index by 90
+    plt.tight_layout()  # all parts come inside graph
+    plt.show()  # show
+    # years basis data
+    year_2020 = data.loc['01-01-2020':'31-12-2020']  # year 2020
+    year_2021 = data.loc['01-01-2021':'31-12-2021']  # year 2021
+    year_2022 = data.loc['01-01-2022':'31-12-2022']  # year 2022
+    year_2023 = data.loc['01-01-2023':'31-12-2023']  # year 2023
+    year_2024 = data.loc['01-01-2024':'31-12-2024']  # year 2024
 
-
-    # average pollution by big city
-    city_avg = data.groupby('Location')[list_column].mean().reset_index()
-    city_avg_melted = city_avg.melt(id_vars='Location', var_name='Pollutant', value_name='Average Level')
-
-    sns.lineplot(data=city_avg_melted, x='Location', y='Average Level', hue='Pollutant')
-    plt.title('Average Pollution Levels by City')
-    plt.xticks(rotation=45)
-    plt.show()
-
-    # yearly based average pollution
-    data['Year'] = data['date'].dt.year
-    for year in data['Year'].unique():
-        yearly_data = data[data['Year'] == year]
-        monthly_avg = yearly_data.groupby('month')[list_column].mean()
-        monthly_avg.plot(title=f'Average Monthly Pollution Levels in {year}')
-        plt.show()
+    year_col = [year_2020, year_2021, year_2022, year_2023, year_2024]  # list of year column
+    list_year = ['year 2020', 'year 2021', 'year 2022', 'year 2023', 'year 2024']
+    for col, col1 in zip(year_col, list_year):
+        df1 = col.groupby('month')[list_column].mean().reset_index()  # groping year_col with list_column
+        df1_melt = col.melt(id_vars='Timestamp', value_vars=list_column, var_name='pollution', value_name='mean_value')
+        # bar graph of years vs pollutions
+        #sns.lineplot(data=col, x='Timestamp', y='mean_value', hue='pollution', marker='o')
+        df1.plot(x='month', y=list_column)
+        plt.xlabel(f'{col1}')  # x axis label
+        plt.ylabel('count')  # y axis label
+        plt.title(f'Graph {col1} vs Pollution')  # title
+        plt.show()  # show
